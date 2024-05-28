@@ -1,0 +1,33 @@
+services:
+    dns:
+        build: ./bind
+        container_name: dns
+        restart: unless-stopped
+        ports:
+            - '53:53/tcp'
+            - '53:53/udp'
+        #    volumes:
+        #      - "./bind/data:/etc/bind:rw"
+        networks:
+            dmz:
+                ipv4_address: 10.0.0.2
+    nginx:
+        image: nginx:latest
+        container_name: web
+        restart: unless-stopped
+        ports:
+            - '80:80'
+        volumes:
+            - ./nginx/html:/var/www/html
+        networks:
+            dmz:
+                ipv4_address: 10.0.0.3
+
+networks:
+    dmz:
+        name: dmz
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.0.0.0/24
+                  gateway: 10.0.0.1
